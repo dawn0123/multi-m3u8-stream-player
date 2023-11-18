@@ -3,96 +3,99 @@
 
 <head>
     <title>HTML5 Video Player</title>
-    <style>
-        .video-js {
-            display: flex;
-            width: 100%;
-            height: 350px;
-            margin: 10px;
-        }
-    </style>
 </head>
 
 <body>
-    <table style="border-collapse: collapse; border: none;">
-        <tr>
-            <td style="border: none;">
-                <video controls id="video1" class="video-js" preload="auto" data-setup="{}">
+    <input type="text" id="stream-url1" placeholder="Input URL 1" style="width: 20%;" />
+    <input type="text" id="stream-url2" placeholder="Input URL 2" style="width: 20%;" />
+    <input type="text" id="stream-url3" placeholder="Input URL 3" style="width: 20%;" />
+    <input type="text" id="stream-url4" placeholder="Input URL 4" style="width: 20%;" />
+    <button style="width: 10%;" id="play-button" onclick="play_videos()">Play Videos</button>
+
+    <video controls id="video-display" data-setup="{}" width="100%" height="70%">
+    </video>
+
+    <dialog id="video-dialog" style="width: 100%; height: 100%;">
+        <div style="text-align: right;">
+            <button id="close-dialog-button" onclick="closeDialog()">Close</button>
+        </div>
+        <div id="video-container">
+            <div id="video-row1" style="text-align: center;">
+                <video controls id="video1" data-setup="{}">
                 </video>
-            </td>
-            <td style="border: none;">
-                <video controls id="video2" class="video-js" preload="auto" data-setup="{}">
+                <video controls id="video2" data-setup="{}">
                 </video>
-            </td>
-        </tr>
-        <tr>
-            <td style="border: none;">
-                <video controls id="video3" class="video-js" preload="auto" data-setup="{}">
+            </div>
+            <div id="video-row2" style="text-align: center;">
+                <video controls id="video3" data-setup="{}">
                 </video>
-            </td>
-            <td style="border: none;">
-                <video controls id="video4" class="video-js" preload="auto" data-setup="{}">
+                <video controls id="video4" data-setup="{}">
                 </video>
-            </td>
-        </tr>
-    </table>
-    <input type="text" id="url1" placeholder="Input URL 1" style="width: 20%;" />
-    <input type="text" id="url2" placeholder="Input URL 2" style="width: 20%;" />
-    <input type="text" id="url3" placeholder="Input URL 3" style="width: 20%;" />
-    <input type="text" id="url4" placeholder="Input URL 4" style="width: 20%;" />
-    <button style="width: 10%;" onclick="play_videos()">Play Videos</button>
+            </div>
+        </div>
+    </dialog>
 
     <script src="https://cdn.tutorialjinni.com/hls.js/1.2.1/hls.min.js"></script>
     <script>
+        function closeDialog() {
+            const dlg = document.getElementById('video-dialog');
+            dlg.close();
+        }
+        
         function play_videos() {
             const height = window.innerHeight * 0.9;
             const urls = [];
-            const isEmpty = [];
-            var cnt = 0;
             for (let i = 1; i <= 4; i++) {
-                const url = document.getElementById(`url${i}`).value;
+                const url = document.getElementById(`stream-url${i}`).value;
                 if (url == '') {
-                    isEmpty.push(true);
+                    continue;
                 } else {
-                    cnt++;
-                    isEmpty.push(false);
+                    urls.push(url);
                 }
-                urls.push(url);
             }
+            const cnt = urls.length;
+
             if (cnt == 0) {
                 alert('Please input urls!');
                 return;
             }
-            if (cnt == 1) {
-                for (let i = 1; i <= 4; i++) {
-                    const video = document.getElementById(`video${i}`);
-                    video.src = urls[i - 1];
-                    if (!isEmpty[i - 1]) {
-                        video.style.display = "flex";
-                        video.style.width = "100%";
-                        video.style.height = height + "px";
-                        var hls = new Hls();
-                        hls.loadSource(video.src);
-                        hls.attachMedia(video);
-                    } else {
-                        video.style.display = "none";
-                    }
-                }
-            } else {
-                for (let i = 1; i <= 4; i++) {
-                    const video = document.getElementById(`video${i}`);
-                    video.style.display = "flex";
-                    video.style.width = "100%";
-                    video.style.height = height / 2 + "px";
-                    video.src = urls[i - 1];
-                    if (!isEmpty[i - 1]) {
-                        var hls = new Hls();
-                        hls.loadSource(video.src);
-                        hls.attachMedia(video);
-                    }
-                }
-            }
 
+            if (cnt == 1) {
+                setVideoSettings('video1', 'inline', '100%', height + 'px', urls[0]);
+                setVideoSettings('video2', 'none', '', '', '');
+                setVideoSettings('video3', 'none', '', '', '');
+                setVideoSettings('video4', 'none', '', '', '');
+            } else if (cnt == 2) {
+                setVideoSettings('video1', 'inline', '45%', height + 'px', urls[0]);
+                setVideoSettings('video2', 'inline', '45%', height + 'px', urls[1]);
+                setVideoSettings('video3', 'none', '', '', '');
+                setVideoSettings('video4', 'none', '', '', '');
+            } else if (cnt == 3) {
+                setVideoSettings('video1', 'inline', '45%', height/ 2 + 'px', urls[0]);
+                setVideoSettings('video2', 'inline', '45%', height/ 2 + 'px', urls[1]);
+                setVideoSettings('video3', 'inline', '45%', height/ 2 + 'px', urls[2]);
+                setVideoSettings('video4', 'none', '', '', '');
+            } else if (cnt == 4) {
+                setVideoSettings('video1', 'inline', '45%', height/ 2 + 'px', urls[0]);
+                setVideoSettings('video2', 'inline', '45%', height/ 2 + 'px', urls[1]);
+                setVideoSettings('video3', 'inline', '45%', height/ 2 + 'px', urls[2]);
+                setVideoSettings('video4', 'inline', '45%', height/ 2 + 'px', urls[3]);
+            }
+            const dlg = document.getElementById('video-dialog');
+            dlg.showModal();
+        }
+
+        function setVideoSettings(video_id, display, width, height, url) {
+            var video = document.getElementById(video_id);
+            video.style.display = display;
+            if (display == 'none')
+                return;
+            video.style.width = width;
+            video.style.height = height;
+            video.src = url;
+            var hls = new Hls();
+            hls.loadSource(video.src);
+            hls.attachMedia(video);
         }
     </script>
 </body>
